@@ -33,6 +33,10 @@ setup(
         "aiofiles~=24.1.0",
         "pydantic_core~=2.27.2",
         "colorama~=0.4.6",
+        # Hardware interaction dependencies
+        "pyserial~=3.5",
+        "pyserial-asyncio~=0.6",
+        "matplotlib~=3.8.2",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -1,23 +1,13 @@
-<p align="center">
-  <img src="assets/logo.jpg" width="200"/>
-</p>
+# 🤖 OpenManus (Fork): Embodied OpenManus: Bridging AI and the Physical World
 
-English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](README_ja.md)
+This fork of OpenManus extends the original project by adding capabilities for physical world interaction through various sensors and microcontrollers. By integrating with ESP-32 devices and sensors like sonar distance sensors, our agent can now perceive and respond to the physical environment, enabling a new class of embodied AI applications.
 
-[![GitHub stars](https://img.shields.io/github/stars/mannaandpoem/OpenManus?style=social)](https://github.com/mannaandpoem/OpenManus/stargazers)
-&ensp;
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) &ensp;
-[![Discord Follow](https://dcbadge.vercel.app/api/server/DYn29wFk9z?style=flat)](https://discord.gg/DYn29wFk9z)
-
-# 👋 OpenManus
-
-Manus is incredible, but OpenManus can achieve any idea without an *Invite Code* 🛫!
-
-Our team members [@Xinbin Liang](https://github.com/mannaandpoem) and [@Jinyu Xiang](https://github.com/XiangJinyu) (core authors), along with [@Zhaoyang Yu](https://github.com/MoshiQAQ), [@Jiayi Zhang](https://github.com/didiforgithub), and [@Sirui Hong](https://github.com/stellaHSR), we are from [@MetaGPT](https://github.com/geekan/MetaGPT). The prototype is launched within 3 hours and we are keeping building!
-
-It's a simple implementation, so we welcome any suggestions, contributions, and feedback!
-
-Enjoy your own agent with OpenManus!
+Key features of this embodied extension include:
+- Integration with ESP-32 microcontrollers for sensor data collection
+- Support for multiple sensor types (sonar, raindrop, GPS)
+- Real-time movement detection and distance sensing
+- Visualization tools for sensor data
+- Agent tools that can directly interact with physical hardware
 
 We're also excited to introduce [OpenManus-RL](https://github.com/OpenManus/OpenManus-RL), an open-source project dedicated to reinforcement learning (RL)- based (such as GRPO) tuning methods for LLM agents, developed collaboratively by researchers from UIUC and OpenManus.
 
@@ -49,6 +39,8 @@ cd OpenManus
 
 ```bash
 pip install -r requirements.txt
+# For hardware support, install additional dependencies
+pip install pyserial pyserial-asyncio matplotlib
 ```
 
 ### Method 2: Using uv (Recommended)
@@ -79,6 +71,8 @@ source .venv/bin/activate  # On Unix/macOS
 
 ```bash
 uv pip install -r requirements.txt
+# For hardware support, install additional dependencies
+uv pip install pyserial pyserial-asyncio matplotlib
 ```
 
 ## Configuration
@@ -109,6 +103,106 @@ base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
 ```
 
+### Hardware Configuration
+
+For sensor integration, you may need to update the following:
+
+1. Serial port settings in scripts:
+   - Update the `PORT` variable in `sonar_movement_detector.py` to match your device
+   - When using the SonarDistanceSensor tool, provide the correct port parameter
+
+2. ESP-32 pin configurations:
+   - If needed, modify pin assignments in the Arduino sketches to match your wiring
+
+## Hardware Requirements
+
+To use the embodied features of OpenManus, you'll need the following hardware components:
+
+- ESP-32 microcontroller (ESP32-WROOM or similar)
+- HC-SR04 ultrasonic distance sensor
+- Optional: Raindrop sensor module
+- Optional: GPS module
+- Breadboard and jumper wires
+- USB cable for connecting ESP-32 to your computer
+- Serial adapter if your computer doesn't have a direct serial connection
+
+### Supported Sensors
+
+| Sensor Type | Description | Status |
+|-------------|-------------|--------|
+| HC-SR04 Sonar | Ultrasonic distance sensor (2cm-400cm range) | Fully supported |
+| Raindrop Sensor | Detects water/moisture | Basic support |
+| GPS Module | Location tracking | Experimental |
+
+## Hardware Setup
+
+### Sonar Distance Sensor Setup
+
+1. Connect the HC-SR04 sensor to your ESP-32:
+   - VCC to 5V
+   - GND to GND
+   - TRIG to GPIO 47 (configurable in code)
+   - ECHO to GPIO 48 (configurable in code)
+
+2. Flash the ESP-32 with the provided code:
+   ```bash
+   # Using Arduino IDE
+   # Open esp-32/lora_depth_sensor/lora_depth_sensor.ino and upload to your device
+
+   # Or using esptool
+   esptool.py --port /dev/ttyUSB0 write_flash 0x10000 esp-32/lora_depth_sensor/lora_depth_sensor.ino.bin
+   ```
+
+3. Note the serial port your device is connected to (e.g., `/dev/ttyUSB0` on Linux or `COM3` on Windows)
+
+### Raindrop Sensor Setup (Optional)
+
+If you're using the raindrop sensor:
+
+1. Connect the sensor to your ESP-32:
+   - VCC to 3.3V
+   - GND to GND
+   - DO to any digital pin (configured as GPIO 36 in the example code)
+
+2. The same firmware (`lora_depth_sensor.ino`) supports both sensors.
+
+## Sensor Visualization and Interaction
+
+OpenManus includes tools for visualizing and interacting with sensor data:
+
+### Sonar Distance Visualization
+
+The sonar sensor data can be visualized in multiple formats:
+- Polar coordinates (sonar_map_polar.png)
+- Cartesian coordinates (sonar_map_cartesian.png)
+- 3D representation (sonar_map_3d.png)
+
+### Movement Detection
+
+The `sonar_movement_detector.py` script provides real-time movement detection using the sonar sensor:
+
+```bash
+# Adjust the PORT variable in the script to match your setup
+python sonar_movement_detector.py
+```
+
+This will continuously monitor for movement and report when objects approach or move away from the sensor.
+
+## Agent Interaction with Sensors
+
+The OpenManus agent can directly interact with physical sensors through the `SonarDistanceSensor` tool. This allows the agent to:
+
+1. Read distance measurements from the environment
+2. Detect obstacles or movement
+3. Make decisions based on physical world data
+
+Example agent prompt:
+```
+Measure the distance to the nearest object and alert me if anything comes closer than 30cm.
+```
+
+The agent will use the SonarDistanceSensor tool to continuously monitor distances and provide alerts based on the specified threshold.
+
 ## Quick Start
 
 One line for run OpenManus:
@@ -124,6 +218,42 @@ For unstable version, you also can run:
 ```bash
 python run_flow.py
 ```
+
+## Example Use Cases
+
+The embodied OpenManus agent can be used for various physical world interaction scenarios:
+
+### 1. Smart Home Monitoring
+
+```
+Monitor the room entrance and alert me when someone enters.
+```
+
+The agent will use the sonar sensor to detect movement at the entrance and send notifications when someone enters the room.
+
+### 2. Distance-Based Automation
+
+```
+Turn on the light when an object is detected within 50cm of the sensor.
+```
+
+The agent can trigger actions based on proximity detection, enabling simple automation scenarios.
+
+### 3. Environmental Monitoring
+
+```
+Check if it's raining and send me an alert if water is detected.
+```
+
+Using the raindrop sensor, the agent can monitor for precipitation and provide weather alerts.
+
+### 4. Data Collection and Analysis
+
+```
+Collect distance measurements every 5 minutes for the next hour and create a visualization of the data.
+```
+
+The agent can perform systematic data collection and generate visualizations to help analyze patterns over time.
 
 ## How to contribute
 
