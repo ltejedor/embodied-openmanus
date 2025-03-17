@@ -21,10 +21,10 @@ setup(
         "pyyaml~=6.0.2",
         "loguru~=0.7.3",
         "numpy",
-        "datasets~=3.2.0",
+        "datasets>=3.2,<3.5",
         "html2text~=2024.2.26",
-        "gymnasium~=1.0.0",
-        "pillow~=10.4.0",
+        "gymnasium>=1.0,<1.2",
+        "pillow>=10.4,<11.2",
         "browsergym~=0.13.3",
         "uvicorn~=0.34.0",
         "unidiff~=0.7.5",
@@ -36,7 +36,7 @@ setup(
         # Hardware interaction dependencies
         "pyserial~=3.5",
         "pyserial-asyncio~=0.6",
-        "matplotlib~=3.8.2",
+        "matplotlib>=3.8.2,<3.11.0",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
